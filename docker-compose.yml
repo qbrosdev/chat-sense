@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  llm-server:
+    image: ollama/ollama:0.12.1
+    container_name: llm-server
+    ports:
+      - "11434:11434"
+    volumes:
+      - llm_data:/root/.ollama/models
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: qbros/chat-sense:latest
+    container_name: chat-sense-service
+    ports:
+      - "8080:8080"
+    environment:
+      - OLLAMA_API_URL=${OLLAMA_API_URL:-http://llm-server:11434}
+      - ANALYZER_NER_ENABLED=${ANALYZER_NER_ENABLED}
+      - ANALYZER_SENTIMENT_ENABLED=${ANALYZER_SENTIMENT_ENABLED}
+    volumes:
+      - app_data:/app/data
+    depends_on:
+      - llm-server
+    restart: unless-stopped
+
+volumes:
+  llm_data:
+    name: llm_data
+  app_data:

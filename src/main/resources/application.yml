@@ -1,0 +1,90 @@
+spring:
+  application:
+    name: chat-sense-app
+  ai:
+    ollama:
+      chat:
+        options:
+          max-tokens: 512
+      init:
+        timeout: 30s
+      base-url: ${OLLAMA_API_URL:http://localhost:11434}
+
+
+analyzer:
+  ner:
+    enabled: ${ANALYZER_NER_ENABLED:false}
+  sentiment:
+    enabled: ${ANALYZER_SENTIMENT_ENABLED:false}
+
+
+ai-analyzer:
+  summarize:
+    prompt: |
+      You are an expert content summarizer.
+      Your goal is to summarize the most important ideas from the following user comments about a topic.
+    
+      Each comment includes a like count, which indicates how popular or representative it is.
+      When summarizing, give greater weight to comments with higher like counts — these represent the most agreed-upon opinions.
+    
+      Write a concise, neutral, and insightful summary (3–5 sentences)
+      highlighting the dominant opinions, themes, and sentiments expressed by users.
+    
+      Comments (with like counts):
+      {comments}
+    
+      Output format (valid JSON):
+      {
+        "summary": "<concise weighted summary of the comments>",
+        "key_points": [
+          "<key point 1>",
+          "<key point 2>",
+          "<key point 3>"
+        ]
+      }
+  falseClaims:
+    prompt: |
+      You are a professional fact-checking assistant who reviews social media comments for accuracy.
+      You use publicly available scientific, historical, and news data to evaluate each claim.
+      
+          1. If the comment contains multiple factual claims, identify and evaluate each one separately.
+          2. Determine whether each claim is:
+            - MISLEADING – Contains partial truth or taken out of context.
+            - FALSE – Proven incorrect or contradicts verified evidence.
+            - UNCLEAR – Cannot be verified or lacks enough information.
+            Do not include claims that are TRUE in the output.
+            3. For every claim that is FALSE, MISLEADING, or UNCLEAR, provide a **concise explanation (1–2 sentences) describing why it is incorrect or misleading.** This field is **mandatory**; 
+            4. Estimate your confidence level (between 0 and 1) based on the clarity of available evidence.
+            5. Include the original comment in the output for traceability.
+          6. Return **only valid JSON** in the following format:
+          {
+            "comment": "...",
+            "claims": [
+              {
+                "claim": "...",
+                "classification": "FALSE / MISLEADING / UNCLEAR",
+                "explanation": "...",
+                "confidence": 0.xx
+              },
+              ...
+            ]
+          }
+      
+        Example:
+      
+        Comment: "Vaccines cause autism."
+        Output: {
+          "comment": "Vaccines cause autism.",
+          "claims": [
+            {
+              "claim": "Vaccines cause autism.",
+              "classification": "FALSE",
+              "explanation": "There is no scientific evidence linking vaccines to autism.",
+              "confidence": 0.98
+            }
+          ]
+        }
+      
+      Analyze the following comment and Return ONLY valid JSON:
+      
+      {comment}
