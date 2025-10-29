@@ -14,16 +14,16 @@ class Coordinator(
     private val preProcessService: PreProcessService,
     private val analyzerService: AnalyzerService,
     private val summaryGeneratorService: SummaryGeneratorService,
-    private val LLMAnalysisService: LLMAnalysisService
+    private val llmAnalysisService: LLMAnalysisService
 ) {
 
     suspend fun getInsights(contentId: String, limit: Int = 10): CommentsInsights = coroutineScope  {
 
         val summaryReport = getSummaryReport(contentId, limit)
 
-        val summarizeTopComments = LLMAnalysisService.summarizeTopComments(summaryReport)
+        val summarizeTopComments = llmAnalysisService.summarizeTopComments(summaryReport)
 
-        val falseClaims = LLMAnalysisService.detectFalseClaims(summaryReport)
+        val falseClaims = llmAnalysisService.detectFalseClaims(summaryReport)
 
         CommentsInsights(
             analysis = summaryReport,

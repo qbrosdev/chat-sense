@@ -13,13 +13,17 @@ spring:
 
 analyzer:
   ner:
-    enabled: ${ANALYZER_NER_ENABLED:false}
+    config:
+      enabled: ${ANALYZER_NER_ENABLED:true}
   sentiment:
-    enabled: ${ANALYZER_SENTIMENT_ENABLED:false}
+    config:
+      enabled: ${ANALYZER_SENTIMENT_ENABLED:true}
 
 
-ai-analyzer:
+llm-analysis:
   summarize:
+    config:
+      enabled: true
     prompt: |
       You are an expert content summarizer.
       Your goal is to summarize the most important ideas from the following user comments about a topic.
@@ -43,6 +47,8 @@ ai-analyzer:
         ]
       }
   falseClaims:
+    config:
+      enabled: false
     prompt: |
       You are a professional fact-checking assistant who reviews social media comments for accuracy.
       You use publicly available scientific, historical, and news data to evaluate each claim.

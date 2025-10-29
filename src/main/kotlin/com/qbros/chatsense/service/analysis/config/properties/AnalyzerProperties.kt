@@ -1,17 +1,23 @@
 package com.qbros.chatsense.service.analysis.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
 
-@Configuration
 @ConfigurationProperties(prefix = "analyzer")
-class AnalyzerProperties {
+data class AnalyzerProperties(val sentiment: Config = Config(),
+                              val ner: Config = Config(),
+                              val linguistic: Config = Config())
+@ConfigurationProperties(prefix = "llm-analysis")
+data class LLMAnalysisProperties(
+    val falseClaims: LLMAnalyzer,
+    val summarize: LLMAnalyzer
+)
 
-    var sentiment: AnalyzerToggle = AnalyzerToggle()
-    var ner: AnalyzerToggle = AnalyzerToggle()
-    var linguistic: AnalyzerToggle = AnalyzerToggle()
+data class LLMAnalyzer(
+    val prompt: String,         // required in YAML
+    val config: Config = Config()
+)
 
-    class AnalyzerToggle {
-        var enabled: Boolean = true
-    }
-}
+data class Config(
+    val enabled: Boolean = true,
+    val confidenceThreshold: Double = 0.9
+)

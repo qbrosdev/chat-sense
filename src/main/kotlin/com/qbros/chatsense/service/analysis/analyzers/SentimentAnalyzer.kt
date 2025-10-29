@@ -17,7 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 
-@ConditionalOnProperty("analyzer.sentiment.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty("analyzer.sentiment.config.enabled", havingValue = "true", matchIfMissing = false)
 @Component
 class SentimentAnalyzer : Analyzer {
 
@@ -36,7 +36,7 @@ class SentimentAnalyzer : Analyzer {
     }
 
     @PostConstruct
-    fun preloadModel() {
+    protected fun preloadModel() {
         scope.launch {
             logger.info { "Initializing the analyzer" }
             model
@@ -45,7 +45,7 @@ class SentimentAnalyzer : Analyzer {
     }
 
     @PreDestroy
-    fun close() {
+    protected fun close() {
         model.close()
         scope.cancel()
     }

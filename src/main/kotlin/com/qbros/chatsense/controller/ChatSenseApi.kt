@@ -29,17 +29,14 @@ class ChatSenseApi(private val coordinator: Coordinator) {
         emit(toSummary(insights)).also { logger.info { "Published summary" } }
 
         // Emit slow summary once ready
-        emit(summarizeTopComments(insights))
+        emit(summarizeTopComments(insights)).also { logger.info { "Published LLM summary" } }
 
         // Stream false claim reports as they arrive
-        emitAll(flow1(insights))
+        emitAll(insights.falseClaimReports.map { InsightEvent.FalseClaim(it) })
     }
 
     private suspend fun summarizeTopComments(insights: CommentsInsights) =
         InsightEvent.SummarizeTopComments(insights.commentSummary.await().summary)
-
-    private fun flow1(insights: CommentsInsights) =
-        insights.falseClaimReports.map { InsightEvent.FalseClaim(it) }
 
     private fun toSummary(insights: CommentsInsights) = InsightEvent.Summary(
         sentimentOverview = insights.analysis.sentimentOverview,

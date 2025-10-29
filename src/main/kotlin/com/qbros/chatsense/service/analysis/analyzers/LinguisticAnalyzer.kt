@@ -53,7 +53,7 @@ class LinguisticAnalyzer : Analyzer {
     }
 
     @PostConstruct
-    fun preloadPipeline() {
+    protected fun preloadPipeline() {
         scope.launch {
             logger.info { "Initializing the analyzer" }
             pipeline
@@ -62,17 +62,16 @@ class LinguisticAnalyzer : Analyzer {
     }
 
     @PreDestroy
-    fun close() {
+    protected fun close() {
         scope.cancel()
     }
 
     override fun process(analysis: CommentAnalysis): CommentAnalysis {
-        val doc = CoreDocument(analysis.text)
-        pipeline.annotate(doc)
-        logger.debug { "annotate completed" }
-        val sentencesAnalysis = doc.sentences()
+
+        val sentencesAnalysis = CoreDocument(analysis.text)
+            .apply { pipeline.annotate(this) }
+            .sentences()
             .map { processSentence(it) }
-            .toList()
 
         val words = sentencesAnalysis
             .flatMap { it.keywords }
@@ -82,7 +81,7 @@ class LinguisticAnalyzer : Analyzer {
     }
 
     private fun processSentence(sentence: CoreSentence): SentenceAnalysis {
-        logger.debug { "Processing sentence ${sentence.text()}" }
+
         val words = mutableListOf<String>()
         sentence.tokens().forEach { token ->
             val tag = token.tag()

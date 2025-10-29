@@ -35,16 +35,13 @@ class AnalyzerService(private val analyzers: List<Analyzer>) {
 
     fun analyze(comments: List<CommentDto>): List<CommentAnalysis> = runBlocking {
 
-        val commentsAnalysis = comments
+        comments
             .map { comment ->
                 async(Dispatchers.Default) {
                     analyzeCommentSequentially(comment)
                 }
             }.awaitAll()
-            .toList()
-
-        commentsAnalysis
-            .also { logger.debug { "✅ Analyzer completed" } }
+            .also { logger.debug { "Analyzer completed" } }
     }
 
     private fun analyzeCommentSequentially(comment: CommentDto): CommentAnalysis {
@@ -65,9 +62,7 @@ class AnalyzerService(private val analyzers: List<Analyzer>) {
 
     private fun listAllSupportedModels() {
 
-        logger.info { "Available engines: ${Engine.getAllEngines().joinToString()}" }
-
-        logger.debug { "=== Listing All Supported Models By DJL ===" }
+        logger.info { "===== Available engines: ${Engine.getAllEngines().joinToString()} ====" }
 
         try {
             // Get all model zoos
@@ -76,9 +71,9 @@ class AnalyzerService(private val analyzers: List<Analyzer>) {
                 logger.debug { "\n Model Zoo: $zooName" }
 
                 try {
-                    val zoo = ModelZoo.getModelZoo(zooName.groupId)
                     // Get all model loaders in this zoo
-                    zoo.modelLoaders
+                    ModelZoo.getModelZoo(zooName.groupId)
+                        .modelLoaders
                         .sortedBy { it.groupId }
                         .forEach { loader ->
                             logger.debug {

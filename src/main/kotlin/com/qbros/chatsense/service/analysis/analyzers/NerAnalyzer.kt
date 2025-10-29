@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
-@ConditionalOnProperty("analyzer.ner.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty("analyzer.ner.config.enabled", havingValue = "true", matchIfMissing = false)
 @Component
 class NerAnalyzer : Analyzer {
 
@@ -35,7 +35,7 @@ class NerAnalyzer : Analyzer {
     }
 
     @PostConstruct
-    fun preloadModel() {
+    protected fun preloadModel() {
         scope.launch {
             logger.info { "Initializing the analyzer" }
             model
@@ -44,7 +44,7 @@ class NerAnalyzer : Analyzer {
     }
 
     @PreDestroy
-    fun close() {
+    protected fun close() {
         model.close()
         scope.cancel()
     }

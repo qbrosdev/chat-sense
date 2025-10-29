@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -95,25 +96,33 @@ class LLMAnalysisServiceIntegrationTest {
 
     @Test
     fun summarizeTopCommentsTest() = runBlocking {
-
         withTimeout(240_000) {
+
             val actual = LLMAnalysisService.summarizeTopComments(
                 analysisSummary(
                     """
-                    This is pretty normal through out the entite IT industry. 
-                    I'm a Linux Systems Administrator but my role is entirely cloud based with a bit of DevOps in the mix the mix. 
-                    The traditional Sysadmin role has changed a lot since the rise of DevOps culture adoption in organizations. 
-                    Many existing sysadmim roles have been rebranded as DevOps Engineer, Site Reliability Engineer and Cloud Engineer 
-                    hense why these titles dominate over Sysadmin title over the years. 
-                    They are just evolved Sysadmin roles. 
-                    Network Administrator title isn't used much either thats been replaced with 
-                    Network Engineer and Cloud Network Engineer that handles both engineering and daily 
-                    network maintenance operations.
+                Remote work has made me so much more productive and less stressed.
+                I miss socializing with coworkers in person, though.
+                Companies that force people back to the office are out of touch.
+                Working from home saves me hours of commuting every week.
+                I think a hybrid model is the best compromise for most teams.
                 """
                 )
-            )
+            ).await()
 
-            println(actual)
+            println("LLM summary response: $actual")
+
+
+            assertNotNull(actual, "Summary should not be null")
+            assertTrue(actual.summary.isNotEmpty(), "Summary text should not be blank")
+
+
+            assertNotNull(actual.key_points, "Key points should not be null")
+            assertTrue(actual.key_points.isNotEmpty(), "There should be at least one key point")
+            assertTrue(
+                actual.key_points.all { it.isNotBlank() },
+                "All key points should be non-empty"
+            )
         }
 
     }

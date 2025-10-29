@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.Flow
 data class SentenceAnalysis(val keywords: List<String>)
 
 data class CommentsSummary(
-    val summary: String,
-    val key_points: List<String>
+    val summary: String = "NA",
+    val key_points: List<String> = emptyList()
 )
 
 data class FalseClaimsReport(
     val comment: String = "NA",
-    val claims: List<Claim>
+    val claims: List<Claim> = emptyList()
 )
 
 data class Claim(
